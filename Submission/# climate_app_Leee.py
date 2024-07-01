@@ -75,7 +75,43 @@ def tobs():
     return jsonify(list(np.ravel(active_station)))
 
 
-# @app.route(<start>/<end>)
+@app.route('/api/v1.0/<start>')
+def temp_start(start):
+    start_date = dt.datetime.strptime(start, '%Y-%m-%d')
+    
+    temp_stats = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)) \
+        .filter(Measurement.date >= start_date) \
+        .all()
+    
+    session.close()
+    
+    temp_stats_dict = {
+        "TMIN": temp_stats[0][0],
+        "TAVG": temp_stats[0][1],
+        "TMAX": temp_stats[0][2]
+    }
+    
+    return jsonify(temp_stats_dict)
+
+@app.route('/api/v1.0/<start>/<end>')
+def temp_start_end(start, end):
+    start_date = dt.datetime.strptime(start, '%Y-%m-%d')
+    end_date = dt.datetime.strptime(end, '%Y-%m-%d')
+    
+    temp_stats = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)) \
+        .filter(Measurement.date >= start_date) \
+        .filter(Measurement.date <= end_date) \
+        .all()
+    
+    session.close()
+    
+    temp_stats_dict = {
+        "TMIN": temp_stats[0][0],
+        "TAVG": temp_stats[0][1],
+        "TMAX": temp_stats[0][2]
+    }
+    
+    return jsonify(temp_stats_dict)
 
 
 # Run the Flask app
@@ -83,48 +119,3 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 
-
-
-
-
-
-# # Q4
-# # Here is a sample code snippet to achieve this:
-
-# # Assuming you have the temperature observations data for the most-active station for the previous year in a variable named `tobs_data`
-
-# # Convert the list of temperature observations to JSON format
-# import json
-# json_tobs = json.dumps(tobs_data)
-
-# # Print or return the JSON representation
-# print(json_tobs)
-
-
-
-
-# # Q5
-# # Here is a sample code snippet to achieve this:
-
-# from flask import Flask, jsonify
-
-# # Assuming you have functions to calculate TMIN, TAVG, and TMAX based on the specified date(s)
-
-# app = Flask(__name__)
-
-# @app.route('/api/v1.0/<start>')
-# def temperature_start(start):
-#     # Calculate TMIN, TAVG, and TMAX for all dates greater than or equal to the start date
-#     # Replace these with your actual calculations
-#     tmin, tavg, tmax = calculate_temperatures_start(start)
-#     return jsonify({'TMIN': tmin, 'TAVG': tavg, 'TMAX': tmax})
-
-# @app.route('/api/v1.0/<start>/<end>')
-# def temperature_range(start, end):
-#     # Calculate TMIN, TAVG, and TMAX for the dates between start and end dates (inclusive)
-#     # Replace these with your actual calculations
-#     tmin, tavg, tmax = calculate_temperatures_range(start, end)
-#     return jsonify({'TMIN': tmin, 'TAVG': tavg, 'TMAX': tmax})
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
