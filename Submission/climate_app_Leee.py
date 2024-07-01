@@ -1,5 +1,3 @@
-# climate_app_Leee
-
 from flask import Flask, jsonify
 import pandas as pd
 import numpy as np
@@ -10,9 +8,7 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func, MetaData, text
 
-#################################################
-# Flask Setup
-#################################################
+
 app = Flask(__name__)
 
 
@@ -23,7 +19,6 @@ session = Session(bind=engine)
 Measurement = Base.classes.measurement
 Station = Base.classes.station
 
-# Q1
 
 app = Flask(__name__)
 
@@ -41,14 +36,12 @@ def welcome():
 
 
 
-
 @app.route('/api/v1.0/precipitation')
 def precipitation():
     prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
     results = session.query(Measurement.date, Measurement.prcp).filter(Measurement.date >= prev_year).all()
     session.close()
 
-    # Create a dictionary with date as the key and prcp as the value
     precipitation_dict = {}
     for date, prcp in results:
         precipitation_dict[date] = prcp
@@ -61,7 +54,7 @@ def stations():
     num_stations = session.query(Station.station).all()
     session.close()
     return jsonify(list(np.ravel(num_stations)))
-# # Add more routes as needed
+
 
 
 
@@ -114,7 +107,6 @@ def temp_start_end(start, end):
     return jsonify(temp_stats_dict)
 
 
-# Run the Flask app
 if __name__ == '__main__':
     app.run(debug=True)
 
